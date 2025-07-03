@@ -21,10 +21,10 @@ public interface IClazz {
     IClazz getParent();
 
     /**
-     * Obtiene el conjunto de clases hijas directas.
-     * @return conjunto inmutable de clases hijas
+     * Obtiene el arreglo de clases hijas directas.
+     * @return arreglo de clases hijas
      */
-    Set<IClazz> getChildren();
+    IClazz[] getChildren();
 
     /**
      * Agrega una clase hija a esta clase.
@@ -51,4 +51,10 @@ public interface IClazz {
      * @return la profundidad (0 para la raíz)
      */
     int getDepth();
+
+    /**
+     * Obtiene el número de clases hijas directas.
+     * @return número de hijos
+     */
+    int getChildrenCount();
 }

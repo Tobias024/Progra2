@@ -11,19 +11,19 @@ import java.util.*;
 public class Clazz implements IClazz {
     private final String name;
     private IClazz parent;
-    private final Set<IClazz> children;
+    private final DynamicArray children;
 
     /**
      * Constructor para crear una clase sin padre (clase raíz).
      * @param name el nombre de la clase
      */
     public Clazz(String name) {
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null || name.trim().length() == 0) {
             throw new IllegalArgumentException("El nombre de la clase no puede ser null o vacío");
         }
         this.name = name.trim();
         this.parent = null;
-        this.children = new HashSet<>();
+        this.children = new DynamicArray();
     }
 
     /**
@@ -47,8 +47,13 @@ public class Clazz implements IClazz {
     }
 
     @Override
-    public Set<IClazz> getChildren() {
-        return Collections.unmodifiableSet(new HashSet<>(children));
+    public IClazz[] getChildren() {
+        return children.toArray();
+    }
+
+    @Override
+    public int getChildrenCount() {
+        return children.size();
     }
 
     @Override
@@ -62,10 +67,11 @@ public class Clazz implements IClazz {
         if (this.isChildOf(child)) {
             throw new IllegalArgumentException("No se puede crear un ciclo en la jerarquía");
         }
-
-        this.children.add(child);
-        if (child instanceof Clazz) {
-            ((Clazz) child).parent = this;
+        if (!children.contains(child)) {
+            this.children.add(child);
+            if (child instanceof Clazz) {
+                ((Clazz) child).parent = this;
+            }
         }
     }
 
@@ -76,7 +82,7 @@ public class Clazz implements IClazz {
         }
 
         IClazz current = this.parent;
-        Set<IClazz> visited = new HashSet<>();
+        DynamicArray visited = new DynamicArray();
 
         while (current != null && !visited.contains(current)) {
             visited.add(current);
@@ -97,7 +103,7 @@ public class Clazz implements IClazz {
     public int getDepth() {
         int depth = 0;
         IClazz current = this.parent;
-        Set<IClazz> visited = new HashSet<>();
+        DynamicArray visited = new DynamicArray();
 
         while (current != null && !visited.contains(current)) {
             visited.add(current);
@@ -128,12 +134,12 @@ public class Clazz implements IClazz {
         if (this == obj) return true;
         if (obj == null || !(obj instanceof IClazz)) return false;
         IClazz other = (IClazz) obj;
-        return Objects.equals(this.name, other.getName());
+        return this.name.equals(other.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return name.hashCode();
     }
 
     @Override
