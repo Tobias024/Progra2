@@ -2,8 +2,8 @@ package org.example.model.interfaces;
 
 public interface InterfaceClazz {
 
-    // Agregar una interfaz padre
-    void addParentInterface(InterfaceClazz parent);
+    // Establecer la interfaz padre (solo una)
+    void setParentInterface(InterfaceClazz parent);
 
     // Agregar una clase que implementa esta interfaz
     void addImplementingClass(Clazz clazz);
@@ -14,8 +14,8 @@ public interface InterfaceClazz {
     // Obtener el nombre de la interfaz
     String getInterfaceName();
 
-    // Obtener las interfaces padre
-    InterfaceList getParentInterfaces();
+    // Obtener la interfaz padre (solo una)
+    InterfaceClazz getParentInterface();
 
     // Obtener las clases que implementan esta interfaz
     ClazzList getImplementingClasses();

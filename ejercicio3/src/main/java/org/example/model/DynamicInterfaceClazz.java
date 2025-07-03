@@ -8,20 +8,18 @@ import org.example.model.interfaces.InterfaceList;
 public class DynamicInterfaceClazz implements InterfaceClazz {
 
     private String interfaceName;
-    private InterfaceList parentInterfaces;
+    private InterfaceClazz parentInterface;
     private ClazzList implementingClasses;
 
     public DynamicInterfaceClazz(String interfaceName) {
         this.interfaceName = interfaceName;
-        this.parentInterfaces = new DynamicInterfaceList();
+        this.parentInterface = null;
         this.implementingClasses = new DynamicClazzList();
     }
 
     @Override
-    public void addParentInterface(InterfaceClazz parent) {
-        if (parent != null) {
-            parentInterfaces.add(parent);
-        }
+    public void setParentInterface(InterfaceClazz parent) {
+        this.parentInterface = parent;
     }
 
     @Override
@@ -37,11 +35,13 @@ public class DynamicInterfaceClazz implements InterfaceClazz {
             return false;
         }
 
-        for (int i = 0; i < parentInterfaces.size(); i++) {
-            InterfaceClazz parent = parentInterfaces.get(i);
-            if (parent.equals(other) || parent.inheritsFrom(other)) {
+        // Recorrer la cadena de herencia lineal
+        InterfaceClazz current = this.parentInterface;
+        while (current != null) {
+            if (current.equals(other)) {
                 return true;
             }
+            current = current.getParentInterface();
         }
         return false;
     }
@@ -52,13 +52,8 @@ public class DynamicInterfaceClazz implements InterfaceClazz {
     }
 
     @Override
-    public InterfaceList getParentInterfaces() {
-        // Devolver una copia para evitar modificaciones externas
-        InterfaceList copy = new DynamicInterfaceList();
-        for (int i = 0; i < parentInterfaces.size(); i++) {
-            copy.add(parentInterfaces.get(i));
-        }
-        return copy;
+    public InterfaceClazz getParentInterface() {
+        return parentInterface;
     }
 
     @Override

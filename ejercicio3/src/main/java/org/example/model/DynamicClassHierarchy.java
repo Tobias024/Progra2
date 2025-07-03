@@ -1,7 +1,7 @@
 package org.example.model;
 
 import org.example.model.interfaces.*;
-import org.example.model.util.ClazzUtil;
+import org.example.model.util.ClazzHelper;
 import org.example.model.util.InterfaceUtil;
 
 public class DynamicClassHierarchy implements ClassHierarchy {
@@ -66,24 +66,31 @@ public class DynamicClassHierarchy implements ClassHierarchy {
         // Verificar que todas las clases tengan jerarquías válidas
         for (int i = 0; i < classes.size(); i++) {
             Clazz clazz = classes.get(i);
-            if (!ClazzUtil.isValidClassHierarchy(clazz)) {
+            if (!ClazzHelper.isValidClassHierarchy(clazz)) {
                 return false;
             }
         }
 
         // Verificar que todas las interfaces tengan relaciones válidas
+        // Ahora solo verificamos que no haya ciclos infinitos
         for (int i = 0; i < interfaces.size(); i++) {
             InterfaceClazz interfaze = interfaces.get(i);
-            InterfaceList parentChain = new DynamicInterfaceList();
-            parentChain.add(interfaze);
+            if (InterfaceUtil.hasInheritanceCycle(interfaze)) {
+                // Solo es inválido si el ciclo no termina en sí mismo
+                InterfaceClazz current = interfaze.getParentInterface();
+                boolean validCycle = false;
 
-            InterfaceList parents = interfaze.getParentInterfaces();
-            for (int j = 0; j < parents.size(); j++) {
-                parentChain.add(parents.get(j));
-            }
+                while (current != null && !current.equals(interfaze)) {
+                    current = current.getParentInterface();
+                }
 
-            if (!InterfaceUtil.isValidInterfaceSequence(parentChain)) {
-                return false;
+                if (current != null && current.equals(interfaze)) {
+                    validCycle = true; // Es un ciclo válido según la consigna
+                }
+
+                if (!validCycle) {
+                    return false;
+                }
             }
         }
 

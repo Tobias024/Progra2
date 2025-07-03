@@ -20,7 +20,11 @@ public class InterfaceUtil {
 
         // Verificar que la secuencia forme una cadena válida
         for (int i = 0; i < interfaces.size() - 1; i++) {
-            if (!interfaces.get(i + 1).inheritsFrom(interfaces.get(i))) {
+            InterfaceClazz current = interfaces.get(i);
+            InterfaceClazz next = interfaces.get(i + 1);
+
+            // Verificar que next herede directamente de current
+            if (!next.getParentInterface().equals(current)) {
                 return false;
             }
         }
@@ -31,5 +35,21 @@ public class InterfaceUtil {
         }
 
         return true;
+    }
+
+    // Verificar si una interfaz tiene ciclos en su herencia
+    public static boolean hasInheritanceCycle(InterfaceClazz interfaceClazz) {
+        if (interfaceClazz == null) {
+            return false;
+        }
+
+        InterfaceClazz current = interfaceClazz.getParentInterface();
+        while (current != null) {
+            if (current.equals(interfaceClazz)) {
+                return true; // Encontrado un ciclo
+            }
+            current = current.getParentInterface();
+        }
+        return false;
     }
 }
