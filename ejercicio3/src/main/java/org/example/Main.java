@@ -1,9 +1,10 @@
 package org.example;
 
 import org.example.model.*;
+import org.example.model.ejercicio3.ClassHierarchy;
+import org.example.model.ejercicio3.DynamicClassHierarchy;
 import org.example.model.interfaces.*;
 import org.example.model.util.ClazzHelper;
-import org.example.model.util.InterfaceUtil;
 
 public class Main {
     public static void main(String[] args) {
