@@ -6,15 +6,18 @@ public class DynamicClazz implements Clazz {
 
     private String className;
     private Clazz parent;
+    private boolean isRecord;
 
     public DynamicClazz(String className) {
         this.className = className;
         this.parent = null;
+        this.isRecord = false;
     }
 
-    public DynamicClazz(String className, Clazz parent) {
+    public DynamicClazz(String className, boolean isRecord) {
         this.className = className;
-        this.parent = parent;
+        this.parent = null;
+        this.isRecord = isRecord;
     }
 
     @Override
@@ -46,6 +49,16 @@ public class DynamicClazz implements Clazz {
     @Override
     public void setParent(Clazz parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public boolean isRecord() {
+        return isRecord;
+    }
+
+    @Override
+    public void setIsRecord(boolean isRecord) {
+        this.isRecord = isRecord;
     }
 
     @Override

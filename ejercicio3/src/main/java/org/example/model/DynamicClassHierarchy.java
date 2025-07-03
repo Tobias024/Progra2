@@ -4,14 +4,18 @@ import org.example.model.interfaces.*;
 import org.example.model.util.ClazzUtil;
 import org.example.model.util.InterfaceUtil;
 
+/**
+ * Dynamic implementation of ClassHierarchy.
+ * Corrected to avoid assigning root as parent for records.
+ */
 public class DynamicClassHierarchy implements ClassHierarchy {
 
-    private Clazz rootClass; // Representa Object en Java
+    private Clazz rootClass; // Represents Object
     private InterfaceList interfaces;
     private ClazzList classes;
 
     public DynamicClassHierarchy() {
-        this.rootClass = new DynamicClazz("Object"); // Object es la raíz
+        this.rootClass = new DynamicClazz("Object");
         this.interfaces = new DynamicInterfaceList();
         this.classes = new DynamicClazzList();
         this.classes.add(rootClass);
@@ -19,13 +23,24 @@ public class DynamicClassHierarchy implements ClassHierarchy {
 
     @Override
     public void addClass(Clazz clazz) {
-        if (clazz != null && !classes.contains(clazz)) {
-            // Si no tiene padre, por defecto hereda de Object
-            if (clazz.getParent() == null && !clazz.equals(rootClass)) {
-                clazz.setParent(rootClass);
-            }
-            classes.add(clazz);
+        if (clazz == null || classes.contains(clazz)) {
+            return;
         }
+
+        // === Validations for record ===
+        if (clazz.isRecord() && clazz.getParent() != null) {
+            throw new RuntimeException("Un record no puede heredar de una clase.");
+        }
+        if (clazz.getParent() != null && clazz.getParent().isRecord()) {
+            throw new RuntimeException("Una clase no puede heredar de un record.");
+        }
+
+        // Only non-record classes get Object as parent if none assigned
+        if (!clazz.isRecord() && clazz.getParent() == null && !clazz.equals(rootClass)) {
+            clazz.setParent(rootClass);
+        }
+
+        classes.add(clazz);
     }
 
     @Override
@@ -37,56 +52,42 @@ public class DynamicClassHierarchy implements ClassHierarchy {
 
     @Override
     public boolean canHaveInterfacesBelowClass(Clazz clazz) {
-        if (clazz == null) {
-            return false;
-        }
-
-        // En Java, las clases pueden implementar interfaces,
-        // pero las interfaces no pueden estar "debajo" de clases en la jerarquía
-        // Una clase solo puede tener otras clases como hijas
-        return true; // Las clases pueden tener interfaces implementadas
+        return clazz != null;
     }
 
     @Override
     public ClazzList getSubclasses(Clazz parent) {
         ClazzList subclasses = new DynamicClazzList();
-
         for (int i = 0; i < classes.size(); i++) {
-            Clazz clazz = classes.get(i);
-            if (clazz.isChildOf(parent)) {
-                subclasses.add(clazz);
+            Clazz c = classes.get(i);
+            if (c.isChildOf(parent)) {
+                subclasses.add(c);
             }
         }
-
         return subclasses;
     }
 
     @Override
     public boolean isValidHierarchy() {
-        // Verificar que todas las clases tengan jerarquías válidas
+        // Let ClassHierarchy.isValidHierarchy handle core validation
         for (int i = 0; i < classes.size(); i++) {
-            Clazz clazz = classes.get(i);
-            if (!ClazzUtil.isValidClassHierarchy(clazz)) {
+            Clazz c = classes.get(i);
+            if (!ClazzUtil.isValidClassHierarchy(c)) {
                 return false;
             }
         }
-
-        // Verificar que todas las interfaces tengan relaciones válidas
         for (int i = 0; i < interfaces.size(); i++) {
-            InterfaceClazz interfaze = interfaces.get(i);
-            InterfaceList parentChain = new DynamicInterfaceList();
-            parentChain.add(interfaze);
-
-            InterfaceList parents = interfaze.getParentInterfaces();
+            InterfaceClazz ic = interfaces.get(i);
+            InterfaceList chain = new DynamicInterfaceList();
+            chain.add(ic);
+            InterfaceList parents = ic.getParentInterfaces();
             for (int j = 0; j < parents.size(); j++) {
-                parentChain.add(parents.get(j));
+                chain.add(parents.get(j));
             }
-
-            if (!InterfaceUtil.isValidInterfaceSequence(parentChain)) {
+            if (!InterfaceUtil.isValidInterfaceSequence(chain)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -97,7 +98,6 @@ public class DynamicClassHierarchy implements ClassHierarchy {
 
     @Override
     public InterfaceList getInterfaces() {
-        // Devolver una copia para evitar modificaciones externas
         InterfaceList copy = new DynamicInterfaceList();
         for (int i = 0; i < interfaces.size(); i++) {
             copy.add(interfaces.get(i));
@@ -107,7 +107,6 @@ public class DynamicClassHierarchy implements ClassHierarchy {
 
     @Override
     public ClazzList getClasses() {
-        // Devolver una copia para evitar modificaciones externas
         ClazzList copy = new DynamicClazzList();
         for (int i = 0; i < classes.size(); i++) {
             copy.add(classes.get(i));

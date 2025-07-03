@@ -2,34 +2,41 @@ package org.example.model.util;
 
 import org.example.model.interfaces.InterfaceClazz;
 import org.example.model.interfaces.InterfaceList;
+import org.example.model.DynamicInterfaceList;
 
 public class InterfaceUtil {
 
     private InterfaceUtil() {
-        // Utility class
+        // Clase utilitaria
     }
 
-    // Verificar si una secuencia de interfaces es válida (I₁ ≺ I₂ ≺ ... ≺ Iₙ implica I₁ = Iₙ)
+    // Verifica que no haya ciclos de herencia entre interfaces
     public static boolean isValidInterfaceSequence(InterfaceList interfaces) {
-        if (interfaces == null || interfaces.size() < 2) {
-            return true;
-        }
+        if (interfaces == null || interfaces.size() == 0) return true;
 
-        InterfaceClazz first = interfaces.get(0);
-        InterfaceClazz last = interfaces.get(interfaces.size() - 1);
-
-        // Verificar que la secuencia forme una cadena válida
-        for (int i = 0; i < interfaces.size() - 1; i++) {
-            if (!interfaces.get(i + 1).inheritsFrom(interfaces.get(i))) {
+        for (int i = 0; i < interfaces.size(); i++) {
+            InterfaceClazz current = interfaces.get(i);
+            if (hasCycle(current, new DynamicInterfaceList())) {
                 return false;
             }
         }
 
-        // Si hay herencia transitiva, verificar que first = last
-        if (last.inheritsFrom(first)) {
-            return first.equals(last);
+        return true;
+    }
+
+    private static boolean hasCycle(InterfaceClazz current, InterfaceList visited) {
+        if (visited.contains(current)) return true;
+
+        visited.add(current);
+
+        InterfaceList parents = current.getParentInterfaces();
+        for (int i = 0; i < parents.size(); i++) {
+            if (hasCycle(parents.get(i), visited)) {
+                return true;
+            }
         }
 
-        return true;
+        visited.remove(current);
+        return false;
     }
 }
