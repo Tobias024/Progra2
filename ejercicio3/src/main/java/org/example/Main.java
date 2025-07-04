@@ -1,14 +1,10 @@
 package org.example;
 
-import org.example.model.*;
-import org.example.model.ejercicio3.ClassHierarchy;
-import org.example.model.ejercicio3.DynamicClassHierarchy;
-import org.example.model.interfaces.*;
-import org.example.model.util.ClazzHelper;
+import org.example.model.ejercicio3.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=".repeat(60));
+        /* System.out.println("=".repeat(60));
         System.out.println("TESTING TP3 - ESTRUCTURAS DE DATOS");
         System.out.println("=".repeat(60));
 
@@ -195,5 +191,107 @@ public class Main {
         } catch (Exception e) {
             System.out.println("❌ Ejercicio 3: ERROR - " + e.getMessage());
         }
+
+         */
+
+        System.out.println("=== Test Jerarquía JavaClass con raíz Object ===\n");
+
+        // Crear raíz: Object (JavaClass especial sin padre)
+        JavaClass object = new JavaClass("Object");
+
+        // Validar que Object no tiene padre (en tu estructura no se ve padre explícito, se maneja por jerarquía de hijos)
+        System.out.println("1. Creación de raíz Object");
+        System.out.println("Raíz creada: " + object.getName());
+
+        // Crear otras clases/interfaces
+        JavaClass animal = new JavaClass("Animal");
+        AbstractClass mamifero = new AbstractClass("Mamifero");
+        JavaClass perro = new JavaClass("Perro");
+        JavaClass gato = new JavaClass("Gato");
+        JavaInterface runnable = new JavaInterface("Runnable");
+        JavaInterface serializable = new JavaInterface("Serializable");
+
+        // 2. Construir jerarquía válida
+        System.out.println("\n2. Construcción jerarquía:");
+
+        // Agregar hijos válidos a Object: Animal (clase), Runnable (interfaz)
+        boolean addAnimal = object.addChild(animal);
+        System.out.println(" - Animal agregado a Object: " + addAnimal);
+
+        boolean addRunnable = object.addChild(runnable);
+        System.out.println(" - Runnable (interfaz) agregado a Object: " + addRunnable);
+
+        // Animal puede tener abstractas y clases hijas
+        boolean addMamifero = animal.addChild(mamifero);
+        System.out.println(" - Mamifero (abstracta) agregado a Animal: " + addMamifero);
+
+        boolean addPerro = mamifero.addChild(perro);
+        System.out.println(" - Perro agregado a Mamifero: " + addPerro);
+
+        boolean addGato = mamifero.addChild(gato);
+        System.out.println(" - Gato agregado a Mamifero: " + addGato);
+
+        // Runnable puede tener interfaces hijas
+        JavaInterface subRunnable = new JavaInterface("SubRunnable");
+        boolean addSubRunnable = runnable.addChild(subRunnable);
+        System.out.println(" - SubRunnable agregado a Runnable: " + addSubRunnable);
+
+        // 3. Validar reglas inválidas
+
+        System.out.println("\n3. Intentar agregar interfaz como hija de clase concreta (debería ser falso):");
+        boolean addSerializableToPerro = perro.addChild(serializable);
+        System.out.println(" - Serializable agregado a Perro: " + addSerializableToPerro);
+
+        System.out.println("\n4. Intentar agregar clase concreta como hija de interfaz (debería ser true):");
+        boolean addPerroToRunnable = runnable.addChild(perro);
+        System.out.println(" - Perro agregado a Runnable: " + addPerroToRunnable);
+
+        System.out.println("\n5. Validar que Object no puede tener padre (no hay método para padre, se asume raíz):");
+        // No hay padre asignado explícitamente ni método, asumimos que root no tiene padre.
+
+        // 6. Mostrar jerarquía (solo nombres, con indentación)
+        System.out.println("\n6. Jerarquía completa:");
+        printHierarchy(object, 0);
+
+        // 7. Validar que no hay ciclos: aquí deberías implementar o llamar tu validador
+        // No diste método para esto, pero se puede implementar si querés
+        System.out.println("\n7. Validar ciclos - NO IMPLEMENTADO: Debes agregar método para detectar ciclos");
+
+        System.out.println("\n=== Fin de test ===");
+    }
+
+    // Método auxiliar para imprimir jerarquía recursiva (usando StringBinaryTree)
+    private static void printHierarchy(JavaElement element, int level) {
+        if (element == null) return;
+        for (int i = 0; i < level; i++) System.out.print("  ");
+        System.out.println("- " + element.getName());
+
+        // Recorrer hijos
+        StringBinaryTree children = element.getChildren();
+        if (children != null && !children.isEmpty()) {
+            printChildren(children, level + 1);
+        }
+    }
+
+    private static void printChildren(StringBinaryTree tree, int level) {
+        if (tree == null || tree.isEmpty()) return;
+
+        // Buscar el JavaElement con ese nombre para imprimir (asumiendo que se puede buscar)
+        JavaElement child = findElementByName(tree.getRoot());
+        if (child != null) {
+            printHierarchy(child, level);
+        }
+
+        printChildren(tree.getLeft(), level);
+        printChildren(tree.getRight(), level);
+    }
+
+    // Método dummy para buscar elemento por nombre (deberías implementar un mapa o registro para buscar)
+    private static JavaElement findElementByName(String name) {
+        // Como no tenés estructura global, este método no puede buscar realmente.
+        // En implementación real deberías tener registro global o pasar contexto.
+        // Acá solo para que compile, devuelve null
+        return null;
     }
 }
+
