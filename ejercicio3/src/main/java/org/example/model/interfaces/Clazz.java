@@ -12,7 +12,6 @@ public interface Clazz {
 
     boolean equals(Object obj);
 
-    // === NUEVO: Soporte para record ===
     boolean isRecord();
     void setIsRecord(boolean isRecord);
 }

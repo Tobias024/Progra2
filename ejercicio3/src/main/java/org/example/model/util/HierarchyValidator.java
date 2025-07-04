@@ -23,7 +23,6 @@ public class HierarchyValidator {
 
             // Object no debe tener padre
             if (current.equals(root) && current.getParent() != null) {
-                System.out.println("❌ ERROR: Object tiene padre: " + current.getParent().getClassName());
                 return false;
             }
 
@@ -45,7 +44,6 @@ public class HierarchyValidator {
         for (int i = 0; i < interfaces.size(); i++) {
             InterfaceClazz current = interfaces.get(i);
             if (hasInterfaceCycle(current, new DynamicInterfaceList())) {
-                System.out.println("❌ Ciclo detectado en interfaz: " + current.getInterfaceName());
                 return false;
             }
         }
